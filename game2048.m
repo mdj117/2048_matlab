@@ -1,26 +1,26 @@
 global game_score
 global game_over
-game_score=0;
+game_score=0
 game_over=0;
 grid=zeros(4,4);
-grid=initial(grid);
+grid=initial(grid)
 while game_over~=1
     keypress=waitforbuttonpress;
     key=double(get(gcf,'CurrentCharacter'));
     %u 30, l 28, r 29, d 31
     switch key
         case 30
-            grid=up(grid);
-            game_over=game_over_check(grid);
+            grid=up(grid)
+            game_over=game_over_check(grid)
         case 28
-            grid=left(grid);
-            game_over=game_over_check(grid);
+            grid=left(grid)
+            game_over=game_over_check(grid)
         case 29
-            grid=right(grid);
-            game_over=game_over_check(grid);
+            grid=right(grid)
+            game_over=game_over_check(grid)
         case 31
-            grid=down(grid);
-            game_over=game_over_check(grid);
+            grid=down(grid)
+            game_over=game_over_check(grid)
     end
 end
 
