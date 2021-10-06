@@ -1,27 +1,29 @@
 global game_score
 global game_over
-game_score=0
-game_over=0
-grid=zeros(4,4)
-initial(grid)
+game_score=0;
+game_over=0;
+grid=zeros(4,4);
+grid=initial(grid);
 while game_over~=1
-    %key press part does not work, but the up, left, right and down
-    %functions do; game_score is kinda acting weird
-    %keypress=waitforbuttonpress
-    %key=double(get(gcf,'CurrentCharacter'))
+    keypress=waitforbuttonpress;
+    key=double(get(gcf,'CurrentCharacter'));
     %u 30, l 28, r 29, d 31
     switch key
         case 30
-            grid=up(grid)
+            grid=up(grid);
+            game_over=game_over_check(grid);
         case 28
-            grid=left(grid)
+            grid=left(grid);
+            game_over=game_over_check(grid);
         case 29
-            grid=right(grid)
+            grid=right(grid);
+            game_over=game_over_check(grid);
         case 31
-            grid=down(grid)
+            grid=down(grid);
+            game_over=game_over_check(grid);
     end
 end
-%%
+
 function [grid]=initial(grid)
     pos_1=randi(16);
     pos_2=randi(16);
@@ -42,15 +44,15 @@ end
 
 function [grid]=new(grid)
     pos=randi(16);
-    while grid(pos)~=0
-        pos=randi(16);
-    end
-        chance=rand();
-        if chance<0.5
-            grid(pos)=2;
-        else
-            grid(pos)=4;
+        while grid(pos)~=0
+            pos=randi(16);
         end
+    chance=rand();
+    if chance<0.5
+        grid(pos)=2;
+    else
+        grid(pos)=4;
+    end
 end
 
 function [grid]=shift(grid)
@@ -82,28 +84,28 @@ end
 
 function [grid_left]=left(grid)
     grid_left=shift(add(shift(grid)));
-    if grid_left~=grid
+    if isequal(grid_left,grid)==false
         grid_left=new(grid_left);
     end
 end
 
 function [grid_down]=down(grid)
     grid_down=transpose(fliplr(shift(add(shift(fliplr(transpose(grid)))))));
-    if grid_down~=grid
+    if isequal(grid_down,grid)==false
         grid_down=new(grid_down);
     end
 end
 
 function [grid_right]=right(grid)
     grid_right=fliplr(shift(add(shift(fliplr(grid)))));
-    if grid_right~=grid
+    if isequal(grid_right,grid)==false
         grid_right=new(grid_right);
     end
 end
 
 function [grid_up]=up(grid)
     grid_up=transpose(shift(add(shift(transpose(grid)))));
-    if grid_up~=grid
+    if isequal(grid_up,grid)==false
         grid_up=new(grid_up);
     end
 end
