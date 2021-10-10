@@ -1,27 +1,78 @@
-global game_score
-global game_over
+function grid=final_test()
 game_score=0
 game_over=0;
 grid=zeros(4,4);
 grid=initial(grid)
+Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,320,160,80]);
+Start = uicontrol('Style','pushbutton','String','Start Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white');
+Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
 while game_over~=1
+    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,240,120,20]);
+    for i = 1:4
+        for j = 1:4
+            if grid(i,j)~=0
+            number=grid(i,j);
+            else
+                number=[];
+            end
+            font_colour='w';
+            switch grid(i,j) % Adds the official colours from 2048
+                case 0
+                    tile_colour='#bbada0';
+                case 2
+                    tile_colour='#eee4da';
+                    font_colour='k';
+                case 4
+                    tile_colour='#ece0c8';
+                    font_colour='k';
+                case 8
+                    tile_colour='#f2b179';
+                case 16
+                    tile_colour='#f59564';
+                case 32
+                    tile_colour='#f57c5f';
+                case 64
+                    tile_colour='#f75d3a';
+                case 128
+                    tile_colour='#eccf72';
+                case 256
+                    tile_colour='#edcc61';
+                case 512
+                    tile_colour='#ecc850';
+                case 1024
+                    tile_colour='#edc53f';
+                case 2048
+                    tile_colour='#eec22e';
+                otherwise
+                    tile_colour='#3d3a33';
+            end
+            uicontrol('Style','pushbutton','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
+        end 
+    end
     keypress=waitforbuttonpress;
     key=double(get(gcf,'CurrentCharacter'));
     %u 30, l 28, r 29, d 31
     switch key
         case 30
             grid=up(grid)
-            game_over=game_over_check(grid)
+            game_over=game_over_check(grid);
         case 28
             grid=left(grid)
-            game_over=game_over_check(grid)
+            game_over=game_over_check(grid);
         case 29
             grid=right(grid)
-            game_over=game_over_check(grid)
+            game_over=game_over_check(grid);
         case 31
             grid=down(grid)
-            game_over=game_over_check(grid)
+            game_over=game_over_check(grid);
     end
+    game_score = sum(grid, 'All')
+end
+end_game
+
+function end_game(src,event)
+game_over=1
+uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 20, 'FontName', 'Bahnschrift','Position',[200,150,200,140],'BackgroundColor','w');
 end
 
 function [grid]=initial(grid)
@@ -75,8 +126,6 @@ function [grid]=add(grid)
             if grid(x,y)~=0 && grid(x,y)==grid(x,y+1)
                 grid(x,y)=2.*grid(x,y);
                 grid(x,y+1)=0;
-                global game_score;
-                game_score=grid(x,y)+game_score;
             end
         end
     end
@@ -117,4 +166,5 @@ function [game_over]=game_over_check(grid)
     else
         game_over=0;
     end
+end
 end
