@@ -1,8 +1,9 @@
-function grid=final_test()
-game_score=0
+global game_score
+global game_over
+game_score=0;
 game_over=0;
 grid=zeros(4,4);
-grid=initial(grid)
+grid=initial(grid);
 Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,320,160,80]);
 Start = uicontrol('Style','pushbutton','String','Start Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white');
 Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
@@ -54,24 +55,23 @@ while game_over~=1
     %u 30, l 28, r 29, d 31
     switch key
         case 30
-            grid=up(grid)
+            grid=up(grid);
             game_over=game_over_check(grid);
         case 28
-            grid=left(grid)
+            grid=left(grid);
             game_over=game_over_check(grid);
         case 29
-            grid=right(grid)
+            grid=right(grid);
             game_over=game_over_check(grid);
         case 31
-            grid=down(grid)
+            grid=down(grid);
             game_over=game_over_check(grid);
     end
-    game_score = sum(grid, 'All')
 end
 end_game
 
 function end_game(src,event)
-game_over=1
+game_over=1;
 uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 20, 'FontName', 'Bahnschrift','Position',[200,150,200,140],'BackgroundColor','w');
 end
 
@@ -123,9 +123,11 @@ end
 function [grid]=add(grid)
     for x=1:4
         for y=1:3
-            if grid(x,y)~=0 && grid(x,y)==grid(x,y+1)
+            if grid(x,y)~=0 && (grid(x,y)==grid(x,y+1))
                 grid(x,y)=2.*grid(x,y);
                 grid(x,y+1)=0;
+                global game_score;
+                game_score=grid(x,y)+game_score;
             end
         end
     end
@@ -161,10 +163,9 @@ end
 
 function [game_over]=game_over_check(grid)
     if isequal(grid,up(grid)) && isequal(grid,down(grid)) && isequal(grid,left(grid)) && isequal(grid,right(grid))
-        global game_over
+        global game_over;
         game_over=1;
     else
         game_over=0;
     end
-end
 end
