@@ -1,14 +1,23 @@
 global game_score
 global game_over
+global grid
+play_game
+
+function play_game(src,event)
+global game_score
+global game_over
+global grid
+clf
 game_score=0;
 game_over=0;
 grid=zeros(4,4);
 grid=initial(grid);
-Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,320,160,80]);
-Start = uicontrol('Style','pushbutton','String','Start Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white');
+Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]);
+Start = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game);
 Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
+
 while game_over~=1
-    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,240,120,20]);
+    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]);
     for i = 1:4
         for j = 1:4
             if grid(i,j)~=0
@@ -47,10 +56,14 @@ while game_over~=1
                 otherwise
                     tile_colour='#3d3a33';
             end
-            uicontrol('Style','pushbutton','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
+            % Quite annoying but this is the only way rn to have the text
+            % centered vertically
+            uicontrol('Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
+            uicontrol('Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
         end 
     end
-    keypress=waitforbuttonpress;
+    
+    waitforbuttonpress;
     key=double(get(gcf,'CurrentCharacter'));
     %u 30, l 28, r 29, d 31
     switch key
@@ -65,14 +78,21 @@ while game_over~=1
             game_over=game_over_check(grid);
         case 31
             grid=down(grid);
-            game_over=game_over_check(grid);
+            game_over=game_over_check(grid);  
     end
 end
 end_game
+end
+
 
 function end_game(src,event)
+global game_over;
+global game_score;
 game_over=1;
-uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 20, 'FontName', 'Bahnschrift','Position',[200,150,200,140],'BackgroundColor','w');
+clf
+End_screen = uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
+Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[200,80,120,60],'BackgroundColor','white', 'Callback', @play_game);
+game_score=0;
 end
 
 function [grid]=initial(grid)
