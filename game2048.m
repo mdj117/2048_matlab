@@ -10,7 +10,13 @@ game_over=0;
 grid=zeros(4,4);
 grid=initial(grid);
 
-while game_over~=1
+%Reads the audiofiles for the background music and the swiping sound
+[bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
+music_full = [bg_music; bg_music; bg_music; bg_music; bg_music; bg_music]; %Concatenates the background music so that it's also long enough for a longer game.
+sound(music_full, music_samplerate);
+[swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
+
+while game_over==0
     game_area=uipanel; %Creates a panel container for the ui-grid to be placed in
     Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]); % Places Welcome text
     Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game); % Places Restart Button that calls the main game function
@@ -68,15 +74,19 @@ while game_over~=1
     switch key
         case 30
             grid=up(grid);
+            sound(swipe_sound, swipe_samplerate); %Plays the swipe sound when a move is made.
             game_over=game_over_check(grid);
         case 28
             grid=left(grid);
+            sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);
         case 29
             grid=right(grid);
+            sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);
         case 31
             grid=down(grid);
+            sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);  
         otherwise
             grid=grid;
@@ -88,14 +98,28 @@ end_game; % Calls end_game once the game is over
 end
 
 
-function end_game(src,event) % Function definition. src and event are used because this function is called by a button
+function end_game(src,event)
+%END_GAME This function is called once the game is over. It then plays
+%sounds and prints text based on whether the player won or lost, using the 
+%global game_over and game_score variables.
 global game_over;
 global game_score;
-game_over=1; % Sets game_over to 1. User can also call this function before game is over.
-clf; % Clears the figure
-End_screen = uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564'); %Endscreen Text
-Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','white', 'Callback', @quit); % Quit button that calls quit function and closes the game if pressed.
-Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[100,80,120,60],'BackgroundColor','white', 'Callback', @play_game); % Retry button calls the function of the main game.
+clf;
+clear sound; %Clears the sound, so that the background music doesn't overlap with the final sound.
+if (game_over == 1)%This if-elseif statement checks whether the user has won or lost the game. In the game_over_check function, losing is defined as game_over = 1 and winning is defined as game_over = 2. 
+    %When the user loses, a sad sound is played and the score is printed.
+    [song, samplerate] = audioread('game-over.wav');
+    sound(song, samplerate);
+    End_screen = uicontrol('Style','text','String',['Game Over. You lost, but you still scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
+elseif (game_over == 2)
+    %When the user wins, a winning fanfare is played and the score is printed.
+    End_screen = uicontrol('Style','text','String',['Game Over. You won! You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
+    [song, samplerate] = audioread('winning.wav');
+    sound(song, samplerate);
+end
+    game_score=0;
+    %The user then has the chance to restart the game.
+    Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[200,80,120,60],'BackgroundColor','white', 'Callback', @play_game);
 end
 
 function quit(src,event) % Function definition. src and event are used because this function is called by a button
@@ -189,10 +213,18 @@ function [grid_up]=up(grid)
 end
 
 function [game_over]=game_over_check(grid)
+%GAME_OVER This function is called every time a move is made, to check
+%whether the game is over. When it is over, the game_over value is changed,
+%so that the while loop in the play_game function won't run again.
+    global game_over;
     if isequal(grid,up(grid),down(grid),left(grid),right(grid))
-        global game_over;
+        %When all moves would result in an equal grid, that means that 
+        %there are no useful moves left, so the user lost. Therefore,
+        %game_over is set to 1.
         game_over=1;
-    elseif ismember(2048,grid)
+    elseif ismember(2048, grid)
+        %When the grid contains 2048, the user wins, so game over is set to
+        %2.
         game_over=2;
     else
         game_over=0;
