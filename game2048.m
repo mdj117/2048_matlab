@@ -1,6 +1,3 @@
-global game_score
-global game_over
-global grid
 play_game
 
 function play_game(src,event)
@@ -12,11 +9,12 @@ game_score=0;
 game_over=0;
 grid=zeros(4,4);
 grid=initial(grid);
-Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]);
-Start = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game);
-Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
 
 while game_over~=1
+    clf
+    Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]);
+    Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game);
+    Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
     Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]);
     for i = 1:4
         for j = 1:4
@@ -58,12 +56,13 @@ while game_over~=1
             end
             % Quite annoying but this is the only way rn to have the text
             % centered vertically
-            uicontrol('Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
-            uicontrol('Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
-        end 
+            
+            background_tile = uicontrol('Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
+            number_tile = uicontrol('Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
+        end
     end
     
-    waitforbuttonpress;
+    waitforbuttonpress; %cancer
     key=double(get(gcf,'CurrentCharacter'));
     %u 30, l 28, r 29, d 31
     switch key
@@ -79,6 +78,8 @@ while game_over~=1
         case 31
             grid=down(grid);
             game_over=game_over_check(grid);  
+        otherwise
+            grid=grid
     end
 end
 end_game
@@ -137,7 +138,7 @@ function [grid]=shift(grid)
             end
         end
     end
-    grid=empty_mat;
+    grid=empty_mat; % because mo wants it this way
 end
 
 function [grid]=add(grid)
@@ -182,9 +183,11 @@ function [grid_up]=up(grid)
 end
 
 function [game_over]=game_over_check(grid)
-    if isequal(grid,up(grid)) && isequal(grid,down(grid)) && isequal(grid,left(grid)) && isequal(grid,right(grid))
+    if isequal(grid,up(grid),down(grid),left(grid),right(grid))
         global game_over;
         game_over=1;
+    elseif ismember(2048,grid)
+        game_over=2;
     else
         game_over=0;
     end
