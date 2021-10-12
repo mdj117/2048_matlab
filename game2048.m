@@ -11,20 +11,21 @@ grid=zeros(4,4);
 grid=initial(grid);
 
 while game_over~=1
-    clf
-    Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]);
-    Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game);
-    Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game);
-    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]);
+    game_area=uipanel; %Creates a panel container for the ui-grid to be placed in
+    Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]); % Places Welcome text
+    Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game); % Places Restart Button that calls the main game function
+    Stop = uicontrol('Style','pushbutton','String','Stop','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game); % Places Stop Button that calls the endgame function
+    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]); % Places text with updated score for each iteration
+    %% Iterates through grid to place the all uicontrol elements
     for i = 1:4
         for j = 1:4
-            if grid(i,j)~=0
-            number=grid(i,j);
+            if grid(i,j)>0 % Checks if number is positive to hide the zeros
+            number=grid(i,j); % Sets number to value of grid
             else
-                number=[];
+                number=[]; % Sets number to empty
             end
-            font_colour='w';
-            switch grid(i,j) % Adds the official colours from 2048
+            font_colour='w'; % Sets standard font color to white
+            switch grid(i,j) % Adds the official colours from 2048 and changes font color to black in case of 2 and 4
                 case 0
                     tile_colour='#bbada0';
                 case 2
@@ -54,11 +55,10 @@ while game_over~=1
                 otherwise
                     tile_colour='#3d3a33';
             end
-            % Quite annoying but this is the only way rn to have the text
-            % centered vertically
-            
-            background_tile = uicontrol('Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
-            number_tile = uicontrol('Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
+            %% Given Matlab doesn't allow to vertically center text, we create two uicontrol objects. One for the background and one for the number in the foreground.
+            % They are arranged based on their position in grid
+            background_tile = uicontrol(game_area,'Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
+            number_tile = uicontrol(game_area,'Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
         end
     end
     
@@ -79,21 +79,27 @@ while game_over~=1
             grid=down(grid);
             game_over=game_over_check(grid);  
         otherwise
-            grid=grid
+            grid=grid;
     end
+    delete(game_area) % Deletes the uipanel game_area to clear the figure while not breaking the buttons
+    
 end
-end_game
+end_game; % Calls end_game once the game is over
 end
 
 
-function end_game(src,event)
+function end_game(src,event) % Function definition. src and event are used because this function is called by a button
 global game_over;
 global game_score;
-game_over=1;
-clf
-End_screen = uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
-Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[200,80,120,60],'BackgroundColor','white', 'Callback', @play_game);
-game_score=0;
+game_over=1; % Sets game_over to 1. User can also call this function before game is over.
+clf; % Clears the figure
+End_screen = uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564'); %Endscreen Text
+Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12, 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','white', 'Callback', @quit); % Quit button that calls quit function and closes the game if pressed.
+Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[100,80,120,60],'BackgroundColor','white', 'Callback', @play_game); % Retry button calls the function of the main game.
+end
+
+function quit(src,event) % Function definition. src and event are used because this function is called by a button
+close % Closes all opened functions
 end
 
 function [grid]=initial(grid)
