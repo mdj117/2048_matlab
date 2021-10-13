@@ -109,7 +109,7 @@ end
 
 
 function end_game(src,event)
-%END_GAME This function is called once the game is over. It then plays
+%END_GAME is called once the game is over. It then plays
 %sounds and prints text based on whether the player won or lost, using the 
 %global game_over and game_score variables.
 global game_over;
@@ -137,9 +137,10 @@ close % Closes all opened functions
 end
 
 function [grid]=initial(grid)
-%INITIAL This functions generates the initial 2 positions on the grid
+%INITIAL generates the initial 2 positions on the grid
 %Input grid (matrix)
 %Output grid(matrix)
+
 %generates two random positions on the grid
     pos_1=randi(16);
     pos_2=randi(16);
@@ -165,39 +166,71 @@ function [grid]=initial(grid)
 end
 
 function [grid]=new(grid)
+%NEW chooses a random empty position to set as 2 or 4
+%Input grid (matrix)
+%Output grid (matrix)
+
+%pos is a random integer indicating position in matrix
     pos=randi(16);
+    %loops until value of grid in random position is 0 (i.e. empty)
         while grid(pos)~=0
             pos=randi(16);
         end
+    %generates a random number from 0 -> 1    
     chance=rand();
+    % 50% of the time it sets the value of random grid position to 2
     if chance<0.5
         grid(pos)=2;
     else
+        % 50% of the time it sets the value of random grid position to 4
         grid(pos)=4;
     end
 end
 
-function [grid]=shift(grid)
-    empty_mat=zeros(4,4);
+function [temp_mat]=shift(grid)
+%SHIFT shifts all the values to the left most empty positions
+%Input grid (matrix)
+%Output grid (matrix)
+
+%generates empty temporary matrix
+    temp_mat=zeros(4,4);
+    %loops through the rows of matrix
     for x=1:4
-        non_empty=1;
+        %initialise non_empty as left most position
+        free_spot=1;
+        %loops through each column of row x in matrix
         for y=1:4
+            %checks if position if not empty, moves the filled position to
+            %the first available and left most position in column (i.e.
+            %free_spot; moves this pointer (free_spot) up by 1 
             if grid(x,y)~=0
-                empty_mat(x,non_empty)=grid(x,y);
-                non_empty=non_empty+1;
+                temp_mat(x,free_spot)=grid(x,y);
+                free_spot=free_spot+1;
             end
         end
     end
-    grid=empty_mat; % because mo wants it this way
 end
 
 function [grid,score]=add(grid)
+%ADD Adds up neighbor numbers in a grid if they are equal (note: only if left
+%number is equal to its first right neighbor) and increases score by this
+%new value
+%Input grid (matrix)
+%Output grid (matrix) score (double)
+%initialises score as 0
     score=0;
+    %loops for each row
     for x=1:4
+        %loops for the first three column (fourth column has no right
+        %neighbor)
         for y=1:3
+            %checks if position is filled and is same as the right neighbor
             if grid(x,y)~=0 && (grid(x,y)==grid(x,y+1))
+                %doubles the current position
                 grid(x,y)=2.*grid(x,y);
+                %sets neighbor as 0
                 grid(x,y+1)=0;
+                %increases score by the new value of position
                 score=grid(x,y)+score;
             end
         end
@@ -205,9 +238,19 @@ function [grid,score]=add(grid)
 end
 
 function [grid_left,add_score]=left(grid)
+%LEFT shifts all positions to the left and performs necessary additions in
+%the grid through matrix manipulations (first shift left, then add the
+%common elements, then shift left once again for the gaps)
+%Input grid (matrix)
+%Output grid_left (matrix) add_score (double)
+
+    %temporarily stores the manipulated matrix and the score delta in array
     [grid_left,temp_game_score]=add(shift(grid));
     grid_left=shift(grid_left);
+    %checks if new matrix is same as the old matrix (no move could occur if
+    %that is the case)
     if isequal(grid_left,grid)==false
+        %see func NEW
         grid_left=new(grid_left);
         add_score=temp_game_score;
     else
@@ -217,9 +260,20 @@ function [grid_left,add_score]=left(grid)
 end
 
 function [grid_down,add_score]=down(grid)
+%DOWN shifts all positions down and performs necessary additions in
+%the grid through matrix manipulations (first transposes the grid along the
+%diagonal, then flips the grid from left to right, performs shift left and
+%addition common elements, then shift left once again for the gaps) -> undoes the transpose and flip to return the final matrix
+%Input grid (matrix)
+%Output grid_down (matrix) add_score (double)
+
+    %temporarily stores the manipulated matrix and the score delta in array
     [grid_down,temp_game_score]=add(shift(fliplr(transpose(grid))));
     grid_down=transpose(fliplr(shift(grid_down)));
+    %checks if new matrix is same as the old matrix (no move could occur if
+    %that is the case)
     if isequal(grid_down,grid)==false
+        %see func NEW
         grid_down=new(grid_down);
         add_score=temp_game_score;
     else
@@ -229,9 +283,18 @@ function [grid_down,add_score]=down(grid)
 end
 
 function [grid_right,add_score]=right(grid)
+%RIGHT shifts all positions to the right and performs necessary additions in
+%the grid through matrix manipulations (first flips from left to right, shift left, then add the
+%common elements, then shift left once again for the gaps, then flip once again to return to original)
+
+%Input grid (matrix)
+%Output grid_right (matrix) add_score (double)
     [grid_right,temp_game_score]=add(shift(fliplr(grid)));
     grid_right=fliplr(shift(grid_right));
+    %checks if new matrix is same as the old matrix (no move could occur if
+    %that is the case)
     if isequal(grid_right,grid)==false
+        %see func NEW
         grid_right=new(grid_right);
         add_score=temp_game_score;
     else
@@ -241,9 +304,19 @@ function [grid_right,add_score]=right(grid)
 end
 
 function [grid_up,add_score]=up(grid)
+%UP shifts all positions up and performs necessary additions in
+%the grid through matrix manipulations (first transposes the grid along the
+%diagonal, performs shift left and
+%addition common elements, then shift left once again for the gaps) then undoes the transpose to return the final matrix
+%Input grid (matrix)
+%Output grid_up (matrix) add_score (double)
+
     [grid_up,temp_game_score]=add(shift(transpose(grid)));
     grid_up=transpose(shift(grid_up));
+    %checks if new matrix is same as the old matrix (no move could occur if
+    %that is the case)
     if isequal(grid_up,grid)==false
+        %see func NEW
         grid_up=new(grid_up);
         add_score=temp_game_score;
     else
@@ -253,7 +326,7 @@ function [grid_up,add_score]=up(grid)
 end
 
 function [game_over]=game_over_check(grid)
-%GAME_OVER This function is called every time a move is made, to check
+%GAME_OVER is called every time a move is made, to check
 %whether the game is over. When it is over, the game_over value is changed,
 %so that the while loop in the play_game function won't run again.
     global game_over;
