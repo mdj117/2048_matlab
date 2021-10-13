@@ -1,14 +1,17 @@
+%runs the game function
 play_game
 
+%PLAY_GAME: runs the game function in GUI view, waits for inputs and
+%contains processing functions
 function play_game(src,event)
-global game_score
-global game_over
-global grid
-clf
-game_score=0;
-game_over=0;
-grid=zeros(4,4);
-grid=initial(grid);
+global game_score %global variable containing the game score
+global game_over %global variable containing the state of the game (0 for running, 1 for loss, 2 for win)
+global grid %global variable containing the 4x4 game grid with empty and filled numbers in the matrix
+clf %clears the GUI figure before each instance of function
+game_score=0; %initialises game_score as 0
+game_over=0; %initialises game_over as 0 (running)
+grid=zeros(4,4); %initialises empty grid
+grid=initial(grid); %inputs the first two numbers into empty grid - see function initial() for more
 
 %Reads the audiofiles for the background music and the swiping sound
 [bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
@@ -16,13 +19,14 @@ music_full = [bg_music; bg_music; bg_music; bg_music; bg_music; bg_music]; %Conc
 sound(music_full, music_samplerate);
 [swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
 
+%Runs the following if and only if game_over condition is 0 (i.e. running)
 while game_over==0
     game_area=uipanel; %Creates a panel container for the ui-grid to be placed in
     Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]); % Places Welcome text
     Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game); % Places Restart Button that calls the main game function
     Stop = uicontrol('Style','pushbutton','String','Stop','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game); % Places Stop Button that calls the endgame function
     Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]); % Places text with updated score for each iteration
-    %% Iterates through grid to place the all uicontrol elements
+    % Iterates through grid to place the all uicontrol elements
     for i = 1:4
         for j = 1:4
             if grid(i,j)>0 % Checks if number is positive to hide the zeros
@@ -61,23 +65,25 @@ while game_over==0
                 otherwise
                     tile_colour='#3d3a33';
             end
-            %% Given Matlab doesn't allow to vertically center text, we create two uicontrol objects. One for the background and one for the number in the foreground.
+            % Given Matlab doesn't allow to vertically center text, we create two uicontrol objects. One for the background and one for the number in the foreground.
             % They are arranged based on their position in grid
             background_tile = uicontrol(game_area,'Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
             number_tile = uicontrol(game_area,'Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
         end
     end
     
-    waitforbuttonpress; %cancer
-    key=double(get(gcf,'CurrentCharacter'));
-    %u 30, l 28, r 29, d 31
+    waitforbuttonpress; %Waits for button input
+    key=double(get(gcf,'CurrentCharacter')); %Records button input as an ASCII character to variable key
+    %Double value for up arrow is 30, left 28, right 29, down 31
+    %Runs the specific command for each type of arrow key, does not do
+    %anything when input is unexpected
     switch key
-        case 30
-            [grid,add_score]=up(grid);
-            game_score=game_score+add_score;
+        case 30 %in case of up key does the following
+            [grid,add_score]=up(grid); %performs the grid manipulation function and stores the delta score to a variable
+            game_score=game_score+add_score; %adds the delta score to global variable game_score that contains the game scoree
             sound(swipe_sound, swipe_samplerate); %Plays the swipe sound when a move is made.
-            game_over=game_over_check(grid);
-        case 28
+            game_over=game_over_check(grid); %checks if grid meets any of the game over conditions
+        case 28 
             [grid,add_score]=left(grid);
             game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate);
@@ -92,7 +98,7 @@ while game_over==0
             game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);  
-        otherwise
+        otherwise %Condition for key press being equal to anything other than arrows
             grid=grid;
     end
     delete(game_area) % Deletes the uipanel game_area to clear the figure while not breaking the buttons
@@ -131,20 +137,30 @@ close % Closes all opened functions
 end
 
 function [grid]=initial(grid)
+%INITIAL This functions generates the initial 2 positions on the grid
+%Input grid (matrix)
+%Output grid(matrix)
+%generates two random positions on the grid
     pos_1=randi(16);
     pos_2=randi(16);
+    %condition for generating two unique positions
     while pos_1==pos_2
         pos_1=randi(16);
         pos_2=randi(16);
     end
+    %creates array of random positions
     positions=[pos_1 pos_2];
+    %loops in the position array elements
     for x=1:2
-    chance=rand();
-    if chance<0.9
-        grid(positions(x))=2;
-    else
-        grid(positions(x))=4;
-    end
+        %generates a random number from 0 -> 1
+        chance=rand();
+        % 90% of the time it sets the value of random grid position to 2
+        if chance<0.9
+            grid(positions(x))=2;
+        else
+            % 10% of the time it sets value of random grid positions to 4
+            grid(positions(x))=4;
+        end
     end
 end
 
