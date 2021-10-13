@@ -21,11 +21,11 @@ sound(music_full, music_samplerate);
 
 %Runs the following if and only if game_over condition is 0 (i.e. running)
 while game_over==0
-    game_area=uipanel; %Creates a panel container for the ui-grid to be placed in
-    Welcome = uicontrol('Style','text','String','Welcome to our Game of 2048. Press Start and use the arrow keys to navigate.','FontSize', 12, 'FontName', 'Bahnschrift','Position',[20,315,160,80]); % Places Welcome text
-    Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,170,120,60],'BackgroundColor','white', 'Callback',@play_game); % Places Restart Button that calls the main game function
-    Stop = uicontrol('Style','pushbutton','String','Stop','FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,90,120,60],'BackgroundColor','white','Callback',@end_game); % Places Stop Button that calls the endgame function
-    Score = uicontrol('Style','text','String',['Score: ',num2str(game_score)],'FontSize', 12, 'FontName', 'Bahnschrift','Position',[40,265,120,20]); % Places text with updated score for each iteration
+    target_area=uipanel; %Creates a panel container for the ui-grid to be placed in
+    Welcome = uicontrol(target_area,'Style','text','String','2048','FontSize', 30,'ForegroundColor', 'w','BackgroundColor', '#eec22e', 'FontName', 'Bahnschrift','Position',[120,360,135,50]); % Places Welcome text
+    Restart = uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
+    Stop = uicontrol('Style','pushbutton','String','Stop','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,302,135,50],'BackgroundColor','#f59564','Callback',@end_game); % Places Stop Button that calls the endgame function
+    Score = uicontrol(target_area,'Style','text','String',['Score: ',num2str(game_score)],'FontSize', 16,'ForegroundColor', 'w','BackgroundColor', '#bbada0', 'FontName', 'Bahnschrift','Position',[120,300,135,50]); % Places text with updated score for each iteration
     % Iterates through grid to place the all uicontrol elements
     for i = 1:4
         for j = 1:4
@@ -67,8 +67,8 @@ while game_over==0
             end
             % Given Matlab doesn't allow to vertically center text, we create two uicontrol objects. One for the background and one for the number in the foreground.
             % They are arranged based on their position in grid
-            background_tile = uicontrol(game_area,'Style','text','String', '','Position', [100+80*j,400-80*i,75,75],'BackgroundColor',tile_colour);
-            number_tile = uicontrol(game_area,'Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[100+80*j,400-80*i,75,55],'BackgroundColor',tile_colour);
+            background_tile = uicontrol(target_area,'Style','text','String', '','Position', [50+70*j,300-70*i,65,65],'BackgroundColor',tile_colour);
+            number_tile = uicontrol(target_area,'Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[50+70*j,300-70*i,65,50],'BackgroundColor',tile_colour);
         end
     end
     
@@ -101,7 +101,7 @@ while game_over==0
         otherwise %Condition for key press being equal to anything other than arrows
             grid=grid;
     end
-    delete(game_area) % Deletes the uipanel game_area to clear the figure while not breaking the buttons
+    delete(target_area) % Deletes the uipanel game_area to clear the figure while not breaking the buttons
     
 end
 end_game; % Calls end_game once the game is over
@@ -116,20 +116,21 @@ global game_over;
 global game_score;
 clf;
 clear sound; %Clears the sound, so that the background music doesn't overlap with the final sound.
-if (game_over == 1)%This if-elseif statement checks whether the user has won or lost the game. In the game_over_check function, losing is defined as game_over = 1 and winning is defined as game_over = 2. 
+End_screen = uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,320],'BackgroundColor','#bbada0');
+
+if game_over == 1 %This if-elseif statement checks whether the user has won or lost the game. In the game_over_check function, losing is defined as game_over = 1 and winning is defined as game_over = 2. 
     %When the user loses, a sad sound is played and the score is printed.
     [song, samplerate] = audioread('game-over.wav');
     sound(song, samplerate);
-    End_screen = uicontrol('Style','text','String',['Game Over. You lost, but you still scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
-elseif (game_over == 2)
+elseif game_over == 2
     %When the user wins, a winning fanfare is played and the score is printed.
-    End_screen = uicontrol('Style','text','String',['Game Over. You won! You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,300],'BackgroundColor','#f59564');
     [song, samplerate] = audioread('winning.wav');
     sound(song, samplerate);
 end
     game_score=0;
     %The user then has the chance to restart the game.
-    Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12, 'FontName', 'Bahnschrift','Position',[200,80,120,60],'BackgroundColor','white', 'Callback', @play_game);
+    Retry = uicontrol('Style','pushbutton','String','Try again!','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[100,80,120,60],'BackgroundColor','#f59564', 'Callback', @play_game);
+    Quit = uicontrol('Style','pushbutton','String','Quit','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','#f59564', 'Callback', @quit);
 end
 
 function quit(src,event) % Function definition. src and event are used because this function is called by a button
