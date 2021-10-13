@@ -73,19 +73,23 @@ while game_over==0
     %u 30, l 28, r 29, d 31
     switch key
         case 30
-            grid=up(grid);
+            [grid,add_score]=up(grid);
+            game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate); %Plays the swipe sound when a move is made.
             game_over=game_over_check(grid);
         case 28
-            grid=left(grid);
+            [grid,add_score]=left(grid);
+            game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);
         case 29
-            grid=right(grid);
+            [grid,add_score]=right(grid);
+            game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);
         case 31
-            grid=down(grid);
+            [grid,add_score]=down(grid);
+            game_score=game_score+add_score;
             sound(swipe_sound, swipe_samplerate);
             game_over=game_over_check(grid);  
         otherwise
@@ -184,51 +188,51 @@ function [grid,score]=add(grid)
     end
 end
 
-function [grid_left]=left(grid)
+function [grid_left,add_score]=left(grid)
     [grid_left,temp_game_score]=add(shift(grid));
     grid_left=shift(grid_left);
     if isequal(grid_left,grid)==false
         grid_left=new(grid_left);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_left=grid;
+        add_score=0;
     end
 end
 
-function [grid_down]=down(grid)
+function [grid_down,add_score]=down(grid)
     [grid_down,temp_game_score]=add(shift(fliplr(transpose(grid))));
     grid_down=transpose(fliplr(shift(grid_down)));
     if isequal(grid_down,grid)==false
         grid_down=new(grid_down);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_down=grid;
+        add_score=0;
     end
 end
 
-function [grid_right]=right(grid)
+function [grid_right,add_score]=right(grid)
     [grid_right,temp_game_score]=add(shift(fliplr(grid)));
     grid_right=fliplr(shift(grid_right));
     if isequal(grid_right,grid)==false
         grid_right=new(grid_right);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_right=grid;
+        add_score=0;
     end
 end
 
-function [grid_up]=up(grid)
+function [grid_up,add_score]=up(grid)
     [grid_up,temp_game_score]=add(shift(transpose(grid)));
     grid_up=transpose(shift(grid_up));
     if isequal(grid_up,grid)==false
         grid_up=new(grid_up);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_up=grid;
+        add_score=0;
     end
 end
 

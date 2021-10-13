@@ -172,6 +172,7 @@ function [grid]=shift(grid)
 end
 
 function [grid,score]=add(grid)
+    score=0;
     for x=1:4
         for y=1:3
             if grid(x,y)~=0 && (grid(x,y)==grid(x,y+1))
@@ -195,47 +196,41 @@ function [grid_left]=left(grid)
     end
 end
 
-function [grid_down]=down(grid)
+function [grid_down,add_score]=down(grid)
     [grid_down,temp_game_score]=add(shift(fliplr(transpose(grid))));
     grid_down=transpose(fliplr(shift(grid_down)));
     if isequal(grid_down,grid)==false
         grid_down=new(grid_down);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_down=grid;
+        add_score=0;
     end
 end
 
-function [grid_right]=right(grid)
+function [grid_right,add_score]=right(grid)
     [grid_right,temp_game_score]=add(shift(fliplr(grid)));
     grid_right=fliplr(shift(grid_right));
     if isequal(grid_right,grid)==false
         grid_right=new(grid_right);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_right=grid;
+        add_score=0;
     end
 end
 
-function [grid_up]=up(grid)
+function [grid_up,add_score]=up(grid)
     [grid_up,temp_game_score]=add(shift(transpose(grid)));
     grid_up=transpose(shift(grid_up));
     if isequal(grid_up,grid)==false
         grid_up=new(grid_up);
-        global game_score
-        game_score=game_score+temp_game_score;
+        add_score=temp_game_score;
     else
         grid_up=grid;
+        add_score=0;
     end
 end
-
-function [check_output]=is_move_possible(grid)
-    [temp_grid,temp_score]=add(shift(transpose(grid)));
-    temp_grid=transpose(shift(temp_grid));
-end
-
 
 function [game_over]=game_over_check(grid)
 %GAME_OVER This function is called every time a move is made, to check
