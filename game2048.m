@@ -340,6 +340,7 @@ function [game_over]=game_over_check(grid)
         %2.
         game_over=2;
     else
+        %Running condition is 0
         game_over=0;
     end
 end
