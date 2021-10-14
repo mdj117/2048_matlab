@@ -15,8 +15,7 @@ grid=initial(grid); %inputs the first two numbers into empty grid - see function
 
 %Reads the audiofiles for the background music and the swiping sound
 [bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
-music_full = [bg_music; bg_music; bg_music; bg_music; bg_music; bg_music]; %Concatenates the background music so that it's also long enough for a longer game.
-sound(music_full, music_samplerate);
+sound(bg_music, music_samplerate);
 [swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
 
 %Runs the following if and only if game_over condition is 0 (i.e. running)
@@ -71,35 +70,36 @@ while game_over==0
             number_tile = uicontrol(target_area,'Style','text','String', number, 'ForegroundColor', font_colour,'FontSize', 18, 'FontName', 'Bahnschrift', 'Position',[50+70*j,300-70*i,65,50],'BackgroundColor',tile_colour);
         end
     end
-    
-    waitforbuttonpress; %Waits for button input
-    key=double(get(gcf,'CurrentCharacter')); %Records button input as an ASCII character to variable key
+    click=waitforbuttonpress; %Waits for button input
+    if click==1
+        key=double(get(gcf,'CurrentCharacter')); %Records button input as an ASCII character to variable key
     %Double value for up arrow is 30, left 28, right 29, down 31
     %Runs the specific command for each type of arrow key, does not do
     %anything when input is unexpected
-    switch key
-        case 30 %in case of up key does the following
-            [grid,add_score]=up(grid); %performs the grid manipulation function and stores the delta score to a variable
-            game_score=game_score+add_score; %adds the delta score to global variable game_score that contains the game scoree
-            sound(swipe_sound, swipe_samplerate); %Plays the swipe sound when a move is made.
-            game_over=game_over_check(grid); %checks if grid meets any of the game over conditions
-        case 28 
-            [grid,add_score]=left(grid);
-            game_score=game_score+add_score;
-            sound(swipe_sound, swipe_samplerate);
-            game_over=game_over_check(grid);
-        case 29
-            [grid,add_score]=right(grid);
-            game_score=game_score+add_score;
-            sound(swipe_sound, swipe_samplerate);
-            game_over=game_over_check(grid);
-        case 31
-            [grid,add_score]=down(grid);
-            game_score=game_score+add_score;
-            sound(swipe_sound, swipe_samplerate);
-            game_over=game_over_check(grid);  
-        otherwise %Condition for key press being equal to anything other than arrows
-            grid=grid;
+        switch key
+            case 30 %in case of up key does the following
+                [grid,add_score]=up(grid); %performs the grid manipulation function and stores the delta score to a variable
+                game_score=game_score+add_score; %adds the delta score to global variable game_score that contains the game scoree
+                sound(swipe_sound, swipe_samplerate); %Plays the swipe sound when a move is made.
+                game_over=game_over_check(grid); %checks if grid meets any of the game over conditions
+            case 28 
+                [grid,add_score]=left(grid);
+                game_score=game_score+add_score;
+                sound(swipe_sound, swipe_samplerate);
+                game_over=game_over_check(grid);
+            case 29
+                [grid,add_score]=right(grid);
+                game_score=game_score+add_score;
+                sound(swipe_sound, swipe_samplerate);
+                game_over=game_over_check(grid);
+            case 31
+                [grid,add_score]=down(grid);
+                game_score=game_score+add_score;
+                sound(swipe_sound, swipe_samplerate);
+                game_over=game_over_check(grid);  
+            otherwise %Condition for key press being equal to anything other than arrows
+                grid=grid;
+        end
     end
     delete(target_area) % Deletes the uipanel game_area to clear the figure while not breaking the buttons
     
@@ -134,6 +134,8 @@ end
 end
 
 function quit(src,event) % Function definition. src and event are used because this function is called by a button
+global game_over
+game_over=1;
 close % Closes all opened functions
 end
 
