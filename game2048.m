@@ -110,8 +110,8 @@ while game_over==0
                 game_over=game_over_check(grid);  
         end
     end
-    catch % Does nothing if waitforbuttonpress is not successful
-    break
+    catch % If waitforbuttonpress is not successful and the figure is deleted, the while loop is exited
+    break 
     end
     delete(target_area) % Deletes the uipanel game_area to clear the figure for performance while not breaking the buttons
 end
