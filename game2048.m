@@ -17,16 +17,16 @@ grid=initial(grid); %inputs the first two numbers into empty grid - see function
 [bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
 sound(bg_music, music_samplerate);
 [swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
-
+home=figure;
     %Runs the following if and only if game_over condition is 0 (i.e. running)
 while game_over==0
-    target_area=uipanel; %Creates a panel container for the ui-grid to be placed in
+    target_area=uipanel(home); %Creates a panel container for the ui-grid to be placed in
     %Title
     uicontrol(target_area,'Style','text','String','2048','FontSize', 30,'ForegroundColor', 'w','BackgroundColor', '#eec22e', 'FontName', 'Bahnschrift','Position',[120,360,135,50]); % Places Welcome text
     %Restart button
-    uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
+    uicontrol(home,'Style','pushbutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
     %Stop button
-    uicontrol('Style','pushbutton','String','Stop','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,302,135,50],'BackgroundColor','#f59564','Callback',@end_game); % Places Stop Button that calls the endgame function
+    uicontrol(home,'Style','pushbutton','String','Stop','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,302,135,50],'BackgroundColor','#f59564','Callback',@end_game); % Places Stop Button that calls the endgame function
     %Score counter
     uicontrol(target_area,'Style','text','String',['Score: ',num2str(game_score)],'FontSize', 16,'ForegroundColor', 'w','BackgroundColor', '#bbada0', 'FontName', 'Bahnschrift','Position',[120,300,135,50]); % Places text with updated score for each iteration
     % Iterates through grid to place the all uicontrol elements
@@ -109,6 +109,7 @@ while game_over==0
     catch % Does nothing if waitforbuttonpress is not successful
     end
     delete(target_area) % Deletes the uipanel game_area to clear the figure for performance while not breaking the buttons
+      
 end
 end_game; % Calls end_game once the game is over
 end
@@ -119,7 +120,8 @@ function end_game(~,~)
 % global game_over and game_score variables.
 global game_over;
 global game_score;
-clf;
+close;
+figure;
 clear sound; %Clears the sound, so that the background music doesn't overlap with the final sound.
 %Endscreen
 uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,320],'BackgroundColor','#bbada0');
