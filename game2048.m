@@ -3,25 +3,25 @@ play_game
 
 %PLAY_GAME: runs the game function in GUI view, waits for inputs and
 %contains processing functions
-function play_game(src,event)
-global game_score %global variable containing the game score
-global game_over %global variable containing the state of the game (0 for running, 1 for loss, 2 for win)
-global grid %global variable containing the 4x4 game grid with empty and filled numbers in the matrix
-clf %clears the GUI figure before each instance of function
+function play_game(~,~)
+%% Mohammad
+global game_score; %global variable containing the game score
+global game_over; %global variable containing the state of the game (0 for running, 1 for loss, 2 for win)
+global grid; %global variable containing the 4x4 game grid with empty and filled numbers in the matrix
+clf; %clears the GUI figure before each instance of function
 game_score=0; %initialises game_score as 0
 game_over=0; %initialises game_over as 0 (running)
 grid=zeros(4,4); %initialises empty grid
 grid=initial(grid); %inputs the first two numbers into empty grid - see function initial() for more
 
-% grid=[1024 1024 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0]
-% grid=[4 2 4 2; 2 4 2 4; 4 2 4 2; 2 4 8 4]
-
+%% Mirella
 %Reads the audiofiles for the background music and the swiping sound
 [bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
 sound(bg_music, music_samplerate);
 [swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
 figure
 %Runs the following if and only if game_over condition is 0 (i.e. running)
+%% Felix
 while game_over==0
     target_area=uipanel; %Creates a panel container for the ui-grid to be placed in
     %Title
@@ -86,6 +86,8 @@ click=waitforbuttonpress; %Waits for button input
     %Double value for up arrow is 30, left 28, right 29, down 31
     %Runs the specific command for each type of arrow key, does not do
     %anything when input is unexpected
+    
+    %% Mohammad
         switch key
             case 30 %in case of up key does the following
                 [grid,add_score]=up(grid); %performs the grid manipulation function and stores the delta score to a variable
@@ -108,7 +110,9 @@ click=waitforbuttonpress; %Waits for button input
                 sound(swipe_sound, swipe_samplerate);
                 game_over=game_over_check(grid);  
         end
+        
     end
+    %% Felix
     catch %Does nothing if waitforbuttonpress is not successful
         
     end
@@ -118,8 +122,8 @@ end
 end_game; % Calls end_game once the game is over
 end
 
-
-function end_game(src,event)
+%% Mirella
+function end_game(~,~)
 %END_GAME is called once the game is over. It then plays
 %sounds and prints text based on whether the player won or lost, using the 
 %global game_over and game_score variables.
@@ -147,13 +151,14 @@ end
     uicontrol('Style','pushbutton','String','Quit','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','#f59564', 'Callback', @quit);
 end
 
-function quit(src,event) % Function definition. src and event are used because this function is called by a button
+function quit(~,~) % Function definition. src and event are used because this function is called by a button
 global game_over
 game_over=1;
 close % Closes all opened functions
-% clc; % Clears command window
+clc; % Clears command window
 end
 
+%% Mohammad
 function [grid]=initial(grid)
 %INITIAL generates the initial 2 positions on the grid
 %Input grid (matrix)
