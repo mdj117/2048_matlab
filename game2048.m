@@ -3,7 +3,7 @@ play_game
 
 %PLAY_GAME: runs the game function in GUI view, waits for inputs and
 %contains processing functions
-function play_game(~,~)
+function play_game(src,event)
 %% Mohammad
 global game_score; %global variable containing the game score
 global game_over; %global variable containing the state of the game (0 for running, 1 for loss, 2 for win)
@@ -123,7 +123,7 @@ end_game; % Calls end_game once the game is over
 end
 
 %% Mirella
-function end_game(~,~)
+function end_game(src,event)
 %END_GAME is called once the game is over. It then plays
 %sounds and prints text based on whether the player won or lost, using the 
 %global game_over and game_score variables.
@@ -151,11 +151,11 @@ end
     uicontrol('Style','pushbutton','String','Quit','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','#f59564', 'Callback', @quit);
 end
 
-function quit(~,~) % Function definition. src and event are used because this function is called by a button
+function quit(src,event) % Function definition. src and event are used because this function is called by a button
 global game_over
 game_over=1;
 close % Closes all opened functions
-clc; % Clears command window
+%clc; % Clears command window
 end
 
 %% Mohammad
