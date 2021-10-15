@@ -28,7 +28,7 @@ while game_over==0
     %Title
     uicontrol(target_area,'Style','text','String','2048','FontSize', 30,'ForegroundColor', 'w','BackgroundColor', '#eec22e', 'FontName', 'Bahnschrift','Position',[120,360,135,50]); % Places Welcome text
     %Restart button
-    uicontrol('Style','togglebutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
+    uicontrol('Style','pushbutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
     %Instructions
     uicontrol(target_area,'Style','text','String','Please double click the buttons!','FontSize', 12,'ForegroundColor', 'w','BackgroundColor', '#bbada0', 'FontName', 'Bahnschrift','Position',[260,300,135,50]); % Places text with updated score for each iteration
     %Score counter
