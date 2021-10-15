@@ -3,6 +3,9 @@ play_game
 
 %PLAY_GAME: runs the game function in GUI view, waits for inputs and
 %contains processing functions
+%General logic by Mo
+%GUI and input fix by Felix
+%Sound implementation by Mirella
 function play_game(~,~)
 global game_score %global variable containing the game score
 global game_over %global variable containing the state of the game (0 for running, 1 for loss, 2 for win)
@@ -17,16 +20,17 @@ grid=initial(grid); %inputs the first two numbers into empty grid - see function
 [bg_music, music_samplerate] = audioread('lofi_bg_music.mp3');
 sound(bg_music, music_samplerate);
 [swipe_sound, swipe_samplerate] = audioread('swipe.mp3');
-home=figure;
-    %Runs the following if and only if game_over condition is 0 (i.e. running)
+
+%Runs the following if and only if game_over condition is 0 (i.e. running)
 while game_over==0
-    target_area=uipanel(home); %Creates a panel container for the ui-grid to be placed in
+    %Creates panel container for the ui-grid to be placed in
+    target_area=uipanel;
     %Title
     uicontrol(target_area,'Style','text','String','2048','FontSize', 30,'ForegroundColor', 'w','BackgroundColor', '#eec22e', 'FontName', 'Bahnschrift','Position',[120,360,135,50]); % Places Welcome text
     %Restart button
-    uicontrol(home,'Style','pushbutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
-    %Stop button
-    uicontrol(home,'Style','pushbutton','String','Stop','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,302,135,50],'BackgroundColor','#f59564','Callback',@end_game); % Places Stop Button that calls the endgame function
+    uicontrol('Style','togglebutton','String','Restart Game','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[260,362,135,50],'BackgroundColor','#f59564', 'Callback',@play_game); % Places Restart Button that calls the main game function
+    %Instructions
+    uicontrol(target_area,'Style','text','String','Please double click the buttons!','FontSize', 12,'ForegroundColor', 'w','BackgroundColor', '#bbada0', 'FontName', 'Bahnschrift','Position',[260,300,135,50]); % Places text with updated score for each iteration
     %Score counter
     uicontrol(target_area,'Style','text','String',['Score: ',num2str(game_score)],'FontSize', 16,'ForegroundColor', 'w','BackgroundColor', '#bbada0', 'FontName', 'Bahnschrift','Position',[120,300,135,50]); % Places text with updated score for each iteration
     % Iterates through grid to place the all uicontrol elements
@@ -107,9 +111,9 @@ while game_over==0
         end
     end
     catch % Does nothing if waitforbuttonpress is not successful
+    break
     end
     delete(target_area) % Deletes the uipanel game_area to clear the figure for performance while not breaking the buttons
-      
 end
 end_game; % Calls end_game once the game is over
 end
@@ -118,10 +122,11 @@ function end_game(~,~)
 % END_GAME is called once the game is over. It then plays
 % sounds and prints text based on whether the player won or lost, using the 
 % global game_over and game_score variables.
+%GUI and logic by Felix
+%Sound and conditions by Mirella
 global game_over;
 global game_score;
-close;
-figure;
+clf;
 clear sound; %Clears the sound, so that the background music doesn't overlap with the final sound.
 %Endscreen
 uicontrol('Style','text','String',['Game Over. You scored: ', num2str(game_score), ' points. Well done!'],'FontSize', 35,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[60,60,400,320],'BackgroundColor','#bbada0');
@@ -138,19 +143,9 @@ end
     game_score=0;
     % The user then has the chance to restart the game.
     % Retry button
-    uicontrol('Style','pushbutton','String','Try again!','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[100,80,120,60],'BackgroundColor','#f59564', 'Callback', @play_game);
-    % Quit button
-    uicontrol('Style','pushbutton','String','Quit','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[300,80,120,60],'BackgroundColor','#f59564', 'Callback', @quit);
+    uicontrol('Style','pushbutton','String','Try again!','FontSize', 12,'ForegroundColor', 'w', 'FontName', 'Bahnschrift','Position',[200,80,120,60],'BackgroundColor','#f59564', 'Callback', @play_game);
 end
-
-function quit(~,~) % This function is called by a button
-global game_over
-game_over=1;
-close % Closes all opened figures
-clc; % Clears command window
-end
-
-
+%% All functions in this section by Mo
 function [grid]=initial(grid)
 %INITIAL generates the initial 2 positions on the grid
 %Input grid (matrix)
@@ -339,11 +334,12 @@ function [grid_up,add_score]=up(grid)
         add_score=0;
     end
 end
-
+%%
 function [game_over]=game_over_check(grid)
 %GAME_OVER is called every time a move is made, to check
 %whether the game is over. When it is over, the game_over value is changed,
 %so that the while loop in the play_game function won't run again.
+%By Mirella
     global game_over;
     if isequal(grid,up(grid),down(grid),left(grid),right(grid))
         %When all moves would result in an equal grid, that means that 
